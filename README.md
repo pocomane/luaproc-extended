@@ -18,12 +18,10 @@ processes*, which are user threads comprised of Lua code that have no shared
 data. Lua processes are executed by *workers*, which are system threads
 implemented with POSIX threads (pthreads), and thus can run in parallel.
 
-Communication between Lua processes relies exclusively on message passing. Each
-message can carry a tuple of atomic Lua values (strings, numbers, booleans and
-nil). More complex types must be encoded somehow -- for instance by using
-strings of Lua code that when executed return such a type. Message addressing is
-based on communication channels, which are decoupled from Lua processes and must
-be explicitly created.
+Communication between Lua processes relies exclusively on message passing. This
+repository integrates
+[changes](https://www.maxwell.vrac.puc-rio.br/30267/30267.PDF) that enable
+luaproc to exchange any value type between processes, except Coroutines.
 
 Sending a message is always a synchronous operation, i.e., the send operation
 only returns after a message has been received by another Lua process or if an
@@ -125,6 +123,9 @@ library and some of its design choices.
 A tech report about concurrency in Lua, which uses luaproc as part of a case
 study, is also available
 [here](ftp://ftp.inf.puc-rio.br/pub/docs/techreports/11_13_skyrme.pdf).
+
+Some exstensions included in this repository are documented
+[here](https://www.maxwell.vrac.puc-rio.br/30267/30267.PDF).
 
 Finally, a paper about an experiment to port luaproc to use Transactional Memory
 instead of the standard POSIX Threads synchronization constructs, published as a
