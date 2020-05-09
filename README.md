@@ -72,6 +72,12 @@ active workers. No return, raises error if worker could not be created.
 
 Returns the number of active workers (pthreads). 
 
+**`luaproc.getnumfreeworkers( )`**
+
+Returns the number of the free workers (pthreads). If all the workers are running
+code, it return a negative integer that indicates the number of the queued
+functions.
+
 **`luaproc.wait( )`**
 
 Waits until all Lua processes have finished, then continues program execution.

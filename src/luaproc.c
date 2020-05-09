@@ -166,6 +166,7 @@ static int luaproc_create_channel( lua_State *L );
 static int luaproc_destroy_channel( lua_State *L );
 static int luaproc_set_numworkers( lua_State *L );
 static int luaproc_get_numworkers( lua_State *L );
+static int luaproc_get_numfreeworkers( lua_State *L );
 static int luaproc_recycle_set( lua_State *L );
 LUALIB_API int luaopen_luaproc( lua_State *L );
 static int luaproc_loadlib( lua_State *L ); 
@@ -243,6 +244,7 @@ static const struct luaL_Reg luaproc_funcs[] = {
 	{ "delchannel", luaproc_destroy_channel },
 	{ "setnumworkers", luaproc_set_numworkers },
 	{ "getnumworkers", luaproc_get_numworkers },
+	{ "getnumfreeworkers", luaproc_get_numfreeworkers },
 	{ "recycle", luaproc_recycle_set },
 
 	{"regudata", luaproc_regudata},
@@ -2740,6 +2742,12 @@ static int luaproc_set_numworkers( lua_State *L ) {
 /* return the number of active workers */
 static int luaproc_get_numworkers( lua_State *L ) {
   lua_pushnumber( L, sched_get_numworkers( ));
+  return 1;
+}
+
+/* return the number of free workers or pendig processes (if negative) */
+static int luaproc_get_numfreeworkers( lua_State *L ) {
+  lua_pushnumber( L, sched_get_numfreeworkers( ));
   return 1;
 }
 

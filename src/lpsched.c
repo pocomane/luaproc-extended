@@ -59,6 +59,7 @@ static lua_State *workerls = NULL;
 int lpcount = 0;         /* number of active luaprocs */
 int workerscount = 0;    /* number of active workers */
 int destroyworkers = 0;  /* number of workers to destroy */
+int freeworker = 0;
 
 int async_msg = 0;//number of async messages in transit
 
@@ -79,9 +80,13 @@ void *workermain( void *args ) {
       or because workers must be destroyed)
     */
     pthread_mutex_lock( &mutex_sched );
+    freeworker -= 1;
     while (( list_count( &ready_lp_list ) == 0 ) && ( destroyworkers <= 0 )) {
+      freeworker += 1;
       pthread_cond_wait( &cond_wakeup_worker, &mutex_sched );
+      freeworker -= 1;
     }
+    freeworker += 1;
 
     if ( destroyworkers > 0 ) {  /* check whether workers should be destroyed */
       
@@ -271,6 +276,7 @@ int sched_set_numworkers( int numworkers ) {
     /* create additional workers */
     for ( i = 0; i < delta; i++ ) {
 
+      freeworker += 1;
       if ( pthread_create( &worker, NULL, workermain, NULL ) != 0 ) {
         pthread_mutex_unlock( &mutex_sched );
         lua_pop( workerls, 1 ); /* pop workers table from stack */
@@ -309,6 +315,13 @@ int sched_get_numworkers( void ) {
   return numworkers;
 }
 
+/* return the number of free workers or pendig processes (if negative) */
+int sched_get_numfreeworkers( void ) {
+  pthread_mutex_lock( &mutex_sched );
+  int result = freeworker - list_count( &ready_lp_list );
+  pthread_mutex_unlock( &mutex_sched );
+  return result;
+}
 /* insert lua process in ready queue */
 void sched_queue_proc( luaproc *lp ) {
   pthread_mutex_lock( &mutex_sched );

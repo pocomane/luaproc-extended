@@ -43,6 +43,8 @@ void sched_dec_lpcount( void );
 int sched_set_numworkers( int numworkers );
 /* return the number of active workers */
 int sched_get_numworkers( void );
+/* return the number of free workers or pendig processes (if negative) */
+int sched_get_numfreeworkers( void );
 
 //enqueues more than one lua process at the time in the ready list
 void sched_queue_list_proc( list *l );
