@@ -22,10 +22,12 @@
 #define TRUE  !FALSE
 #define LUAPROC_SCHED_WORKERS_TABLE "workertb"
 
-#if (LUA_VERSION_NUM >= 502)
-#define luaproc_resume( L, from, nargs ) lua_resume( L, from, nargs )
+#if (LUA_VERSION_NUM >= 504)
+#define luaproc_resume( L, from, nargs, results ) lua_resume( L, from, nargs, results )
+#elif (LUA_VERSION_NUM >= 502)
+#define luaproc_resume( L, from, nargs, results ) lua_resume( L, from, nargs )
 #else
-#define luaproc_resume( L, from, nargs ) lua_resume( L, nargs )
+#define luaproc_resume( L, from, nargs, results ) lua_resume( L, nargs )
 #endif
 
 /********************
@@ -110,8 +112,10 @@ void *workermain( void *args ) {
     pthread_mutex_unlock( &mutex_sched );
 
     /* execute the lua code specified in the lua process struct */
+    int results = 0;
     procstat = luaproc_resume( luaproc_get_state( lp ), NULL,
-                               luaproc_get_numargs( lp ));
+                               luaproc_get_numargs( lp ), &results);
+    if ( results != 0 ) lua_pop(luaproc_get_state( lp ), results);
     /* reset the process argument count */
     luaproc_set_numargs( lp, 0 );
 
